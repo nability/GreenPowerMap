@@ -1,0 +1,27 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Panel Surya SMA N 1 Cisaat",
+        "info": "Kapasitas: 5 kWp, Tegangan: 220V"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [106.8735, -6.9054]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Panel Surya Desa Sukamanah",
+        "info": "Kapasitas: 8 kWp, Tegangan: 230V"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [106.8701, -6.9082]
+      }
+    }
+  ]
+}

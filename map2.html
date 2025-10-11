@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Map of Cisaat</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+</head>
+<body>
+    <h1>Map of Cisaat</h1>
+    <div id="map" style="height: 600px;"></div>
+
+    <script>
+        // Inisialisasi peta
+        var map = L.map('map').setView([-6.9055, 106.8733], 18);
+
+        // --- Base Maps ---
+        var osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '© OpenStreetMap'
+        }).addTo(map);
+
+        var satellite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+            maxZoom: 19,
+            attribution: 'Tiles © Esri'
+        });
+
+        // --- Overlay Layers ---
+
+        // Marker Layer
+        var markerLayer = L.layerGroup();
+        var marker1 = L.marker([-6.905379669064089, 106.87321616817877]).bindPopup("Nusa Putra University");
+        var marker2 = L.marker([-6.905971579172743, 106.87318777601035]).bindPopup("Mesjid RI");
+        markerLayer.addLayer(marker1);
+        markerLayer.addLayer(marker2);
+
+        // Polyline Layer (contoh garis antar dua titik)
+        var polylineLayer = L.layerGroup();
+        var polyline = L.polyline([
+            [-6.905379669064089, 106.87321616817877],
+            [-6.905971579172743, 106.87318777601035]
+        ], {color: 'blue'}).bindPopup("Jalur Kampus ke Mesjid");
+        polylineLayer.addLayer(polyline);
+
+        // Polygon Layer (area kampus)
+        var polygonLayer = L.layerGroup();
+        var polygon = L.polygon([
+            [-6.9055810692645, 106.87297532968961],
+            [-6.9055477235994545, 106.87344558035494],
+            [-6.905397668077725, 106.87342458702102],
+            [-6.905139239012087, 106.87345817635418],
+            [-6.9049850151469485, 106.87349176568733],
+            [-6.9049391647998135, 106.87325244168937],
+            [-6.904976678720416, 106.87304670702315],
+            [-6.905076715829196, 106.87301731635608],
+            [-6.905280958194609, 106.87301731635608],
+            [-6.9055810692645, 106.87297532968961]
+        ], {color: 'red', fillOpacity: 0.3}).bindPopup("Campus Area");
+        polygonLayer.addLayer(polygon);
+
+        // --- Layer Control ---
+        var baseMaps = {
+            "OpenStreetMap": osm,
+            "Satellite": satellite
+        };
+
+        var overlayMaps = {
+            "Markers": markerLayer,
+            "Polyline": polylineLayer,
+            "Polygon": polygonLayer
+        };
+
+        L.control.layers(baseMaps, overlayMaps).addTo(map);
+
+        // Tampilkan semua overlay secara default
+        markerLayer.addTo(map);
+        polylineLayer.addTo(map);
+        polygonLayer.addTo(map);
+
+    </script>
+
+</body>
+</html>
