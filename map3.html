@@ -1,127 +1,206 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>EnergiMap - Peta Panel Surya & Energi Terbarukan</title>
-  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
-  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sistem Peringatan Dini Longsor Sukabumi</title>
+  
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  
+  <script src="https://cdn.jsdelivr.net/npm/@turf/turf@6/turf.min.js"></script>
+  
   <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #f8f9fa;
-    }
-    h2 {
+    /* Reset & Layout */
+    body { margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    #map { height: 100vh; width: 100%; background: #ddd; }
+
+    /* Judul Melayang */
+    .map-title {
+      position: absolute; 
+      top: 20px; 
+      left: 50%; 
+      transform: translateX(-50%);
+      z-index: 1000; 
+      background: rgba(255, 255, 255, 0.9); 
+      padding: 10px 25px; 
+      border-radius: 30px; 
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
       text-align: center;
-      background: #0077b6;
-      color: white;
-      padding: 10px;
-      margin: 0;
     }
-    #map {
-      height: 90vh;
-      width: 100%;
+    .map-title h2 { margin: 0; font-size: 18px; color: #2c3e50; }
+    .map-title small { font-size: 12px; color: #7f8c8d; }
+
+    /* Legenda di Pojok Kanan Bawah */
+    .legend {
+      background: white; 
+      padding: 15px; 
+      line-height: 24px; 
+      color: #333;
+      box-shadow: 0 0 15px rgba(0,0,0,0.2); 
+      border-radius: 8px;
+      font-size: 13px;
     }
-    .leaflet-popup-content {
-      font-size: 14px;
+    .legend h4 { margin: 0 0 10px; font-size: 14px; }
+    .legend i {
+      width: 18px; height: 18px; 
+      float: left; 
+      margin-right: 8px; 
+      opacity: 0.9; 
+      border-radius: 3px;
     }
+    
+    /* Loading Spinner di Popup */
+    .loader { border: 3px solid #f3f3f3; border-top: 3px solid #3498db; border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; margin: 0 auto; }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
   </style>
 </head>
 <body>
-  <h2>EnergiMap ⚡ – Peta Panel Surya & Potensi Energi Terbarukan</h2>
+
+  <div class="map-title">
+    <h2>SI Peringatan Dini Longsor</h2>
+    <small>Data Curah Hujan Real-time (Open-Meteo)</small>
+  </div>
+
   <div id="map"></div>
 
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
   <script>
-    // Inisialisasi peta
-    var map = L.map('map').setView([-6.9055, 106.8733], 13);
+    // --- 1. SETUP PETA DASAR ---
+    // Koordinat Tengah Sukabumi
+    var map = L.map('map').setView([-7.05, 106.9], 10); 
 
-    // --- Base Maps ---
-    var osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 19,
-      attribution: '© OpenStreetMap'
-    }).addTo(map);
-
-    var satellite = L.tileLayer(
-      'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-      {
-        maxZoom: 19,
+    var satellite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
         attribution: 'Tiles © Esri'
-      }
-    );
+    });
+    
+    var street = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap'
+    });
 
-    // --- Overlay Layers ---
-    var solarLayer = L.layerGroup();
-    var gridLayer = L.layerGroup();
-    var potentialLayer = L.layerGroup();
+    var labels = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.png', {
+        attribution: '© CartoDB'
+    });
 
-    // Fungsi umum untuk bind popup
-    function onEachFeature(feature, layer) {
-      if (feature.properties && feature.properties.name) {
-        layer.bindPopup(`
-          <b>${feature.properties.name}</b><br>
-          <small>${feature.properties.info || 'Data tidak tersedia'}</small>
-        `);
-      }
+    // Default layer: Satelit + Label Nama Daerah
+    satellite.addTo(map);
+    labels.addTo(map);
+
+    L.control.layers({ "Satelit": satellite, "Jalan": street }, { "Label Daerah": labels }).addTo(map);
+
+
+    // --- 2. LOGIKA WARNA & STATUS ---
+    function getRiskColor(rain) {
+        if (rain > 50) return '#e74c3c'; // MERAH (Bahaya)
+        if (rain > 20) return '#f1c40f'; // KUNING (Waspada)
+        return '#2ecc71';                // HIJAU (Aman)
     }
 
-    // Load Marker Lokasi Panel Surya (GeoJSON)
-    fetch('panel_surya.geojson')
-      .then(res => res.json())
-      .then(data => {
-        L.geoJSON(data, {
-          pointToLayer: function (feature, latlng) {
-            return L.marker(latlng, {
-              icon: L.icon({
-                iconUrl: 'https://cdn-icons-png.flaticon.com/512/8045/8045526.png',
-                iconSize: [32, 32],
-                iconAnchor: [16, 32],
-                popupAnchor: [0, -28]
-              })
-            });
+    function getRiskStatus(rain) {
+        if (rain > 50) return 'BAHAYA (Potensi Longsor)';
+        if (rain > 20) return 'WASPADA (Tanah Basah)';
+        return 'AMAN (Normal)';
+    }
+
+
+    // --- 3. MUAT DATA WILAYAH (GEOJSON) ---
+    console.log("Memulai load data...");
+    
+    fetch('BatasSukabumi.json')
+      .then(response => {
+          if (!response.ok) throw new Error("Gagal load file JSON. Cek nama filenya!");
+          return response.json();
+      })
+      .then(geojsonData => {
+        
+        console.log("JSON berhasil dimuat. Jumlah wilayah: " + geojsonData.features.length);
+
+        L.geoJSON(geojsonData, {
+          // RENDERER CANVAS (PENTING AGAR TIDAK LAG)
+          renderer: L.canvas(),
+
+          // Style Awal (Abu-abu sebelum data cuaca masuk)
+          style: {
+            color: 'white',
+            weight: 1,
+            fillOpacity: 0.6,
+            fillColor: '#bdc3c7' 
           },
-          onEachFeature: onEachFeature
-        }).addTo(solarLayer);
-      });
 
-    // Load Polyline Rute Jaringan Listrik
-    fetch('jaringan_listrik.geojson')
-      .then(res => res.json())
-      .then(data => {
-        L.geoJSON(data, {
-          style: { color: 'orange', weight: 3 },
-          onEachFeature: onEachFeature
-        }).addTo(gridLayer);
-      });
+          onEachFeature: function(feature, layer) {
+            // -- A. SIAPKAN POPUP --
+            // Ambil Nama Kecamatan (GADM menggunakan NAME_3)
+            var namaKec = feature.properties.NAME_3 || "Kecamatan";
+            var namaKab = feature.properties.NAME_2 || "Sukabumi";
+            
+            // Popup Default (Loading)
+            layer.bindPopup(`
+                <div style="text-align:center; min-width:120px">
+                    <b>${namaKec}</b><br>
+                    <div class="loader"></div>
+                    <small>Mengambil data...</small>
+                </div>
+            `);
 
-    // Load Polygon Wilayah Potensi Energi
-    fetch('potensi_energi.geojson')
-      .then(res => res.json())
-      .then(data => {
-        L.geoJSON(data, {
-          style: { color: 'green', fillOpacity: 0.3 },
-          onEachFeature: onEachFeature
-        }).addTo(potentialLayer);
-      });
+            // -- B. HITUNG TITIK TENGAH --
+            // Turf.js mencari centroid polygon agar API tahu koordinat mana yang dicek
+            var center = turf.centroid(feature).geometry.coordinates; // [lng, lat]
+            
+            // -- C. PANGGIL API OPEN-METEO --
+            var url = `https://api.open-meteo.com/v1/forecast?latitude=${center[1]}&longitude=${center[0]}&daily=precipitation_sum&timezone=Asia%2FBangkok`;
 
-    // --- Layer Control ---
-    var baseMaps = {
-      "OpenStreetMap": osm,
-      "Citra Satelit": satellite
+            fetch(url)
+              .then(res => res.json())
+              .then(weatherData => {
+                 // Ambil data hujan hari ini (index 0)
+                 var hujan = weatherData.daily.precipitation_sum[0];
+                 
+                 // UPDATE WARNA PETA (Otomatis berubah)
+                 layer.setStyle({
+                     fillColor: getRiskColor(hujan),
+                     fillOpacity: 0.7
+                 });
+
+                 // UPDATE ISI POPUP (Data Masuk)
+                 layer.setPopupContent(`
+                    <div style="text-align:center; font-family:sans-serif;">
+                      <h3 style="margin:0; color:#333;">Kec. ${namaKec}</h3>
+                      <small style="color:#666;">${namaKab}</small>
+                      <hr style="border:0; border-top:1px solid #ccc; margin:8px 0;">
+                      
+                      <div style="font-size:12px; margin-bottom:5px;">Curah Hujan Hari Ini:</div>
+                      <div style="font-size:24px; font-weight:bold; color:#2c3e50;">${hujan} <span style="font-size:12px">mm</span></div>
+                      
+                      <div style="margin-top:8px; padding:5px; background:${getRiskColor(hujan)}; color:white; border-radius:4px; font-weight:bold; font-size:12px;">
+                        ${getRiskStatus(hujan)}
+                      </div>
+                    </div>
+                 `);
+              })
+              .catch(err => {
+                  console.error("Gagal API untuk " + namaKec, err);
+                  layer.setPopupContent(`<b>${namaKec}</b><br>Gagal memuat data cuaca.`);
+              });
+          }
+        }).addTo(map);
+
+      })
+      .catch(err => alert("Error: " + err.message));
+
+
+    // --- 4. LEGENDA PETA ---
+    var legend = L.control({position: 'bottomright'});
+    legend.onAdd = function (map) {
+        var div = L.DomUtil.create('div', 'legend');
+        div.innerHTML += "<h4>Indeks Risiko</h4>";
+        div.innerHTML += '<i style="background: #e74c3c"></i> > 50mm (Bahaya)<br>';
+        div.innerHTML += '<i style="background: #f1c40f"></i> 20-50mm (Waspada)<br>';
+        div.innerHTML += '<i style="background: #2ecc71"></i> < 20mm (Aman)<br>';
+        div.innerHTML += '<i style="background: #bdc3c7"></i> Data Loading...<br>';
+        return div;
     };
+    legend.addTo(map);
 
-    var overlayMaps = {
-      "Lokasi Panel Surya": solarLayer,
-      "Rute Jaringan Listrik": gridLayer,
-      "Wilayah Potensi Energi": potentialLayer
-    };
-
-    L.control.layers(baseMaps, overlayMaps).addTo(map);
-
-    // Tampilkan semua overlay secara default
-    solarLayer.addTo(map);
-    gridLayer.addTo(map);
-    potentialLayer.addTo(map);
   </script>
 </body>
 </html>
