@@ -128,59 +128,72 @@
           },
 
           onEachFeature: function(feature, layer) {
-            // -- A. SIAPKAN POPUP --
-            // Ambil Nama Kecamatan (GADM menggunakan NAME_3)
-            var namaKec = feature.properties.NAME_3 || "Kecamatan";
-            var namaKab = feature.properties.NAME_2 || "Sukabumi";
-            
-            // Popup Default (Loading)
-            layer.bindPopup(`
-                <div style="text-align:center; min-width:120px">
-                    <b>${namaKec}</b><br>
-                    <div class="loader"></div>
-                    <small>Mengambil data...</small>
-                </div>
-            `);
+              // 1. Siapkan Nama & Titik Tengah
+              var namaKec = feature.properties.NAME_3 || "Kecamatan";
+              var namaKab = feature.properties.NAME_2 || "Sukabumi";
+              var center = turf.centroid(feature).geometry.coordinates;
 
-            // -- B. HITUNG TITIK TENGAH --
-            // Turf.js mencari centroid polygon agar API tahu koordinat mana yang dicek
-            var center = turf.centroid(feature).geometry.coordinates; // [lng, lat]
-            
-            // -- C. PANGGIL API OPEN-METEO --
-            var url = `https://api.open-meteo.com/v1/forecast?latitude=${center[1]}&longitude=${center[0]}&daily=precipitation_sum&timezone=Asia%2FBangkok`;
+              // 2. Set Popup Loading Awal
+              layer.bindPopup(`<div style="text-align:center"><b>${namaKec}</b><br><small>Memuat data lengkap...</small></div>`);
 
-            fetch(url)
-              .then(res => res.json())
-              .then(weatherData => {
-                 // Ambil data hujan hari ini (index 0)
-                 var hujan = weatherData.daily.precipitation_sum[0];
-                 
-                 // UPDATE WARNA PETA (Otomatis berubah)
-                 layer.setStyle({
-                     fillColor: getRiskColor(hujan),
-                     fillOpacity: 0.7
-                 });
+              // 3. Request API dengan PARAMETER TAMBAHAN
+              // Kita minta: Hujan, Angin Maks, dan Probabilitas Hujan
+              var url = `https://api.open-meteo.com/v1/forecast?latitude=${center[1]}&longitude=${center[0]}&daily=precipitation_sum,windspeed_10m_max,precipitation_probability_max&timezone=Asia%2FBangkok`;
 
-                 // UPDATE ISI POPUP (Data Masuk)
-                 layer.setPopupContent(`
-                    <div style="text-align:center; font-family:sans-serif;">
-                      <h3 style="margin:0; color:#333;">Kec. ${namaKec}</h3>
-                      <small style="color:#666;">${namaKab}</small>
-                      <hr style="border:0; border-top:1px solid #ccc; margin:8px 0;">
-                      
-                      <div style="font-size:12px; margin-bottom:5px;">Curah Hujan Hari Ini:</div>
-                      <div style="font-size:24px; font-weight:bold; color:#2c3e50;">${hujan} <span style="font-size:12px">mm</span></div>
-                      
-                      <div style="margin-top:8px; padding:5px; background:${getRiskColor(hujan)}; color:white; border-radius:4px; font-weight:bold; font-size:12px;">
-                        ${getRiskStatus(hujan)}
+              fetch(url)
+                .then(res => res.json())
+                .then(weatherData => {
+                  // --- AMBIL DATA HARI INI (Index 0) ---
+                  var hujanHariIni = weatherData.daily.precipitation_sum[0];
+                  var anginHariIni = weatherData.daily.windspeed_10m_max[0];
+                  var peluangHujan = weatherData.daily.precipitation_probability_max[0];
+
+                  // --- AMBIL DATA BESOK (Index 1) ---
+                  var hujanBesok = weatherData.daily.precipitation_sum[1];
+
+                  // --- LOGIKA WARNA (Tetap pakai Hujan sebagai penentu utama) ---
+                  layer.setStyle({
+                      fillColor: getRiskColor(hujanHariIni),
+                      fillOpacity: 0.7
+                  });
+
+                  // --- UPDATE POPUP MENJADI DASHBOARD INFORMASI ---
+                  layer.setPopupContent(`
+                      <div style="font-family:sans-serif; min-width:200px;">
+                        <div style="background:${getRiskColor(hujanHariIni)}; color:white; padding:10px; border-radius:5px 5px 0 0; text-align:center;">
+                          <h3 style="margin:0;">${namaKec}</h3>
+                          <small>${getRiskStatus(hujanHariIni)}</small>
+                        </div>
+
+                        <div style="padding:10px; background:#f9f9f9; border:1px solid #ddd; border-top:none;">
+                          <table style="width:100%; font-size:13px;">
+                              <tr>
+                                  <td style="color:#555;">🌧️ Curah Hujan:</td>
+                                  <td style="font-weight:bold; text-align:right;">${hujanHariIni} mm</td>
+                              </tr>
+                              <tr>
+                                  <td style="color:#555;">💨 Angin Kencang:</td>
+                                  <td style="font-weight:bold; text-align:right;">${anginHariIni} km/h</td>
+                              </tr>
+                              <tr>
+                                  <td style="color:#555;">📊 Peluang Hujan:</td>
+                                  <td style="font-weight:bold; text-align:right;">${peluangHujan}%</td>
+                              </tr>
+                          </table>
+                        </div>
+
+                        <div style="padding:8px; background:#eee; font-size:12px; text-align:center; border-radius:0 0 5px 5px; border:1px solid #ddd; border-top:none;">
+                          <b>Prediksi Besok:</b> ${hujanBesok} mm 
+                          <br>
+                          (${getRiskStatus(hujanBesok)})
+                        </div>
                       </div>
-                    </div>
-                 `);
-              })
-              .catch(err => {
-                  console.error("Gagal API untuk " + namaKec, err);
-                  layer.setPopupContent(`<b>${namaKec}</b><br>Gagal memuat data cuaca.`);
-              });
+                  `);
+                })
+                .catch(err => {
+                    console.error("Gagal load API", err);
+                    layer.setPopupContent(`<b>${namaKec}</b><br>Gagal memuat data.`);
+                });
           }
         }).addTo(map);
 
@@ -200,6 +213,28 @@
         return div;
     };
     legend.addTo(map);
+
+        // Tambahkan kode ini sebelum closing script
+    L.control.locate = L.Control.extend({
+        onAdd: function(map) {
+            var div = L.DomUtil.create('div', 'leaflet-bar leaflet-control leaflet-control-custom');
+            div.style.backgroundColor = 'white';
+            div.style.width = '30px';
+            div.style.height = '30px';
+            div.style.cursor = 'pointer';
+            div.innerHTML = '<div style="font-size:20px; text-align:center; line-height:30px;">📍</div>';
+            div.onclick = function() {
+                map.locate({setView: true, maxZoom: 16});
+            }
+            return div;
+        }
+    });
+    map.addControl(new L.control.locate({ position: 'topleft' }));
+
+    map.on('locationfound', function(e) {
+        L.circle(e.latlng, { radius: e.accuracy/2, color: 'blue' }).addTo(map)
+        .bindPopup("Lokasi Anda").openPopup();
+    });
 
   </script>
 </body>
