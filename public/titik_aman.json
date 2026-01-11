@@ -1,0 +1,42 @@
+[
+  {
+    "kecamatan": "Cisolok",
+    "nama_tempat": "Masjid Besar Cisolok",
+    "tipe": "Tempat Ibadah",
+    "kapasitas": "500 Orang",
+    "lat": -6.985,
+    "lng": 106.555
+  },
+  {
+    "kecamatan": "Cikidang",
+    "nama_tempat": "Lapangan Bola Cikidang",
+    "tipe": "Lapangan Terbuka",
+    "kapasitas": "2000 Orang",
+    "lat": -6.940,
+    "lng": 106.620
+  },
+  {
+    "kecamatan": "Simpenan",
+    "nama_tempat": "SDN 1 Simpenan",
+    "tipe": "Sekolah",
+    "kapasitas": "300 Orang",
+    "lat": -7.010,
+    "lng": 106.570
+  },
+  {
+    "kecamatan": "Palabuhanratu",
+    "nama_tempat": "Alun-Alun Palabuhanratu",
+    "tipe": "Lapangan Terbuka",
+    "kapasitas": "5000 Orang",
+    "lat": -6.988,
+    "lng": 106.551
+  },
+  {
+    "kecamatan": "Pabuaran",
+    "nama_tempat": "Kantor Desa Pabuaran",
+    "tipe": "Pemerintahan",
+    "kapasitas": "100 Orang",
+    "lat": -7.180,
+    "lng": 106.800
+  }
+]

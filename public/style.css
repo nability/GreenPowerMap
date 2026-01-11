@@ -1,0 +1,236 @@
+/* --- RESET --- */
+* { box-sizing: border-box; }
+body { margin: 0; padding: 0; font-family: 'Quicksand', sans-serif; background: #f4f6f7; display: flex; flex-direction: column; height: 100vh; }
+
+/* --- 1. HEADER (CUACA) --- */
+.weather-dashboard {
+  background: white; padding: 15px 20px;
+  display: flex; justify-content: space-between; align-items: center;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.05); z-index: 1000;
+}
+.header-title h1 { margin: 0; font-size: 20px; color: #2c3e50; }
+.header-title p { margin: 0; font-size: 12px; color: #7f8c8d; }
+
+.weather-cards { display: flex; gap: 15px; }
+.w-card {
+  display: flex; align-items: center; gap: 10px; background: #ecf0f1;
+  padding: 8px 15px; border-radius: 10px;
+}
+.w-card i { font-size: 20px; color: #3498db; }
+.w-info { display: flex; flex-direction: column; }
+.w-info span { font-weight: bold; font-size: 16px; color: #2c3e50; }
+.w-info small { font-size: 10px; color: #7f8c8d; }
+
+/* Responsive Header Mobile */
+@media (max-width: 768px) {
+  .weather-dashboard { flex-direction: column; gap: 10px; }
+  .weather-cards { width: 100%; justify-content: space-between; }
+  .w-card { padding: 5px 10px; flex: 1; }
+}
+
+/* --- 2. MAP CONTAINER --- */
+#map-container { position: relative; flex: 1; /* Mengisi sisa ruang */ width: 100%; }
+#map { width: 100%; height: 100%; }
+
+/* SIDEBAR ADJUSTMENT (Agar tidak menabrak header) */
+.sidebar { top: 75px; height: calc(100vh - 75px - 100px); /* Kurangi header & footer */ }
+#sidebar-toggle { top: 20px; left: 20px; } /* Sesuaikan posisi tombol */
+
+/* --- 3. FOOTER (KONTAK) --- */
+.emergency-footer {
+  background: #2c3e50; color: white; padding: 15px 20px; text-align: center;
+}
+.emergency-footer h3 { margin: 0 0 10px 0; font-size: 16px; }
+.contact-grid { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-bottom: 10px; }
+.contact-btn {
+  text-decoration: none; color: white; padding: 8px 15px; border-radius: 5px;
+  font-size: 13px; font-weight: bold; display: flex; align-items: center; gap: 5px;
+  transition: transform 0.2s;
+}
+.contact-btn:hover { transform: scale(1.05); }
+.bg-red { background: #e74c3c; }
+.bg-blue { background: #3498db; }
+.bg-green { background: #2ecc71; }
+.bg-orange { background: #e67e22; }
+.copyright { font-size: 10px; opacity: 0.6; }
+
+/* --- ICON & LAINNYA --- */
+.safe-icon { width: 30px; height: 30px; background: #27ae60; color: white; border-radius: 50%; display: flex; justify-content: center; align-items: center; border: 2px solid white; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
+.loader-mini { border: 4px solid #f3f3f3; border-top: 4px solid #3498db; border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; }
+@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+#map-loader { position: absolute; top: 10px; right: 10px; z-index: 1000; background: white; padding: 5px; border-radius: 5px; display: none; }
+
+/* --- TOMBOL TOGGLE (HAMBURGER) --- */
+#sidebar-toggle {
+  position: absolute; top: 20px; left: 20px; z-index: 2000;
+  background: white; border: none; padding: 12px 15px;
+  border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+  cursor: pointer; font-size: 18px; color: #333; transition: 0.3s;
+}
+#sidebar-toggle:hover { background: #f8f9fa; transform: scale(1.05); -webkit-transform: scale(1.05); -moz-transform: scale(1.05); -ms-transform: scale(1.05); -o-transform: scale(1.05); }
+
+/* --- SIDEBAR CONTAINER --- */
+.sidebar {
+  position: absolute; top: 0; left: 0; height: 100vh; width: 350px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+  box-shadow: 2px 0 15px rgba(0,0,0,0.1);
+  z-index: 1500; display: flex; flex-direction: column;
+  transform: translateX(-100%); /* Sembunyi secara default di layar kecil, atau atur sesuai selera */
+  transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+/* --- IKON TITIK AMAN (HIJAU) --- */
+.safe-icon {
+  width: 30px; height: 30px;
+  background: #27ae60; /* Hijau Emerald */
+  color: white;
+  border-radius: 50%;
+  display: flex; justify-content: center; align-items: center;
+  font-weight: bold; font-size: 14px;
+  border: 2px solid white;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+  z-index: 1000;
+}
+/* Efek Hover saat mouse di atas ikon */
+.safe-icon:hover {
+  transform: scale(1.1);
+  background: #2ecc71;
+  cursor: pointer;
+}
+
+/* --- LOADING SCREEN --- */
+#loading-screen {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  background: #2c3e50; z-index: 9999;
+  display: flex; flex-direction: column; justify-content: center; align-items: center;
+  color: white; font-family: 'Quicksand', sans-serif;
+  transition: opacity 0.5s;
+}
+.loader {
+  border: 5px solid #f3f3f3; border-top: 5px solid #3498db;
+  border-radius: 50%; width: 50px; height: 50px;
+  animation: spin 1s linear infinite; margin-bottom: 20px;
+}
+
+/* --- SOS BUTTON --- */
+.sos-btn {
+  position: absolute; bottom: 30px; left: 20px; z-index: 1000;
+  background: #c0392b; color: white; border: none;
+  padding: 12px 20px; border-radius: 50px;
+  font-weight: bold; font-size: 16px; cursor: pointer;
+  box-shadow: 0 4px 15px rgba(192, 57, 43, 0.4);
+  display: flex; align-items: center; gap: 10px;
+  animation: pulse 2s infinite;
+}
+@keyframes pulse { 
+  0% { box-shadow: 0 0 0 0 rgba(192, 57, 43, 0.7); }
+  70% { box-shadow: 0 0 0 10px rgba(192, 57, 43, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(192, 57, 43, 0); }
+}
+
+/* --- SOS MODAL --- */
+.sos-modal {
+  display: none; position: fixed; z-index: 3000;
+  left: 0; top: 0; width: 100%; height: 100%;
+  background-color: rgba(0,0,0,0.7);
+  backdrop-filter: blur(5px);
+}
+.sos-content {
+  background-color: white; margin: 15% auto; padding: 25px;
+  border-radius: 15px; width: 90%; max-width: 350px;
+  text-align: center; position: relative;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+}
+.close-sos {
+  position: absolute; top: 10px; right: 20px;
+  font-size: 28px; cursor: pointer; color: #aaa;
+}
+.sos-item {
+  border-bottom: 1px solid #eee; padding: 15px 0;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.sos-link {
+  background: #27ae60; color: white; padding: 5px 15px;
+  border-radius: 20px; text-decoration: none; font-weight: bold;
+}
+
+@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+/* Jika layar besar, sidebar default terbuka */
+@media (min-width: 768px) {
+  .sidebar { transform: translateX(0); }
+  /* Geser tombol toggle jika sidebar terbuka */
+  .sidebar.active + #sidebar-toggle { left: 370px; }
+}
+
+/* Class untuk JS (Buka/Tutup) */
+.sidebar.open { transform: translateX(0); }
+.sidebar.closed { transform: translateX(-100%); }
+
+/* --- SIDEBAR COMPONENTS --- */
+.sidebar-header {
+  /* Ubah padding kiri dari 20px menjadi 80px */
+  padding: 25px 20px 25px 80px; 
+  background: #2c3e50;
+  color: white;
+}
+.sidebar-header h2 { margin: 0; font-size: 20px; display: flex; align-items: center; gap: 10px; }
+.sidebar-header p { margin: 5px 0 0; font-size: 12px; opacity: 0.8; letter-spacing: 1px; text-transform: uppercase; }
+
+/* SEARCH BOX */
+.search-box {
+  padding: 15px 20px; border-bottom: 1px solid #eee; position: relative;
+}
+.search-box input {
+  width: 100%; padding: 12px 15px 12px 40px; border: 1px solid #ddd;
+  border-radius: 50px; font-family: inherit; font-size: 14px; outline: none; transition: 0.3s;
+}
+.search-box input:focus { border-color: #3498db; box-shadow: 0 0 5px rgba(52, 152, 219, 0.2); }
+.search-icon { position: absolute; left: 35px; top: 50%; transform: translateY(-50%); color: #999; }
+
+.search-results {
+  position: absolute; top: 65px; left: 20px; right: 20px;
+  background: white; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+  max-height: 200px; overflow-y: auto; display: none; z-index: 100;
+}
+.search-item { padding: 10px 15px; cursor: pointer; border-bottom: 1px solid #f0f0f0; font-size: 13px; }
+.search-item:hover { background: #f7f9fc; color: #3498db; }
+
+/* SIDEBAR CONTENT */
+.sidebar-content { flex: 1; overflow-y: auto; padding: 20px; }
+
+/* Legend & Info Cards */
+.info-card { background: #eef2f3; padding: 15px; border-radius: 10px; margin-bottom: 20px; font-size: 13px; color: #555; }
+.info-card h4 { margin-top: 0; color: #333; display: flex; align-items: center; gap: 8px; }
+
+.legend-section { margin-bottom: 20px; }
+.legend-section h4 { font-size: 14px; border-bottom: 2px solid #eee; padding-bottom: 5px; margin-bottom: 10px; }
+.legend-item { display: flex; align-items: center; font-size: 13px; margin-bottom: 8px; color: #444; }
+.dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; margin-right: 10px; }
+.dot.danger { background: #e74c3c; box-shadow: 0 0 5px #e74c3c; }
+.dot.warning { background: #f39c12; box-shadow: 0 0 5px #f39c12; }
+.dot.safe { background: #2ecc71; box-shadow: 0 0 5px #2ecc71; }
+
+/* DETAIL VIEW STYLES */
+.detail-header { text-align: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid #eee; }
+.detail-title { margin: 0; font-size: 22px; color: #2c3e50; font-weight: 700; }
+.detail-status { display: inline-block; margin-top: 5px; padding: 4px 12px; border-radius: 15px; color: white; font-size: 11px; font-weight: bold; letter-spacing: 1px; }
+
+.stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+.stat-item { background: white; border: 1px solid #eee; padding: 15px; border-radius: 10px; text-align: center; transition: 0.3s; }
+.stat-item:hover { transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
+.stat-val { display: block; font-size: 18px; font-weight: 700; color: #333; margin-top: 5px; }
+.stat-lbl { font-size: 11px; color: #888; text-transform: uppercase; }
+.stat-icon { font-size: 20px; margin-bottom: 5px; display: inline-block; }
+
+.btn-back { width: 100%; padding: 10px; border: 1px solid #ddd; background: transparent; border-radius: 8px; cursor: pointer; color: #666; font-weight: 600; margin-top: 10px; transition: 0.3s; }
+.btn-back:hover { background: #f0f0f0; color: #333; }
+
+/* Footer */
+.sidebar-footer { padding: 15px; text-align: center; font-size: 11px; color: #aaa; border-top: 1px solid #eee; }
+
+/* Custom Markers */
+.custom-div-icon { background: transparent; border: none; }
+.history-icon { width: 30px; height: 30px; background: #c0392b; color: white; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-weight: bold; border: 2px solid white; box-shadow: 0 4px 6px rgba(0,0,0,0.3); animation: bounce 2s infinite; -webkit-border-radius: 50%; -moz-border-radius: 50%; -ms-border-radius: 50%; -o-border-radius: 50%; }
+@keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }

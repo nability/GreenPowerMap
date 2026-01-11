@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Early Warning System Sukabumi</title>
+  
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@turf/turf@6/turf.min.js"></script>
+</head>
+<body>
+
+  <header class="weather-dashboard">
+    <div class="header-title">
+      <h1><i class="fa-solid fa-mountain-sun"></i> Si-Tanggap</h1>
+      <p>Kabupaten Sukabumi</p>
+    </div>
+    <div class="weather-cards">
+      <div class="w-card">
+        <i class="fa-solid fa-cloud-rain"></i>
+        <div class="w-info">
+          <span id="global-rain">-</span>
+          <small>Hujan (Hari Ini)</small>
+        </div>
+      </div>
+      <div class="w-card">
+        <i class="fa-solid fa-wind"></i>
+        <div class="w-info">
+          <span id="global-wind">-</span>
+          <small>Angin (Maks)</small>
+        </div>
+      </div>
+      <div class="w-card">
+        <i class="fa-solid fa-temperature-half"></i>
+        <div class="w-info">
+          <span id="global-temp">-</span>
+          <small>Suhu Rata-rata</small>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <button id="sidebar-toggle" onclick="toggleSidebar()"><i class="fa-solid fa-bars"></i></button>
+  <div id="sidebar" class="sidebar">
+    <div class="sidebar-header">
+      <h2>Menu & Info</h2>
+    </div>
+    <div class="search-box">
+      <i class="fa-solid fa-magnifying-glass search-icon"></i>
+      <input type="text" id="search-input" placeholder="Cari Kecamatan..." onkeyup="filterSearch()">
+      <div id="search-results" class="search-results"></div>
+    </div>
+    <div id="sidebar-content" class="sidebar-content">
+      <div id="default-info">
+         <div class="info-card"><h4><i class="fa-solid fa-info-circle"></i> Panduan</h4><p>Klik wilayah atau titik aman untuk detail.</p></div>
+      </div>
+      <div id="detail-info" style="display: none;"></div>
+    </div>
+  </div>
+
+  <div id="map-container">
+    <div id="map"></div>
+    <div id="map-loader"><div class="loader-mini"></div></div>
+  </div>
+
+  <footer class="emergency-footer">
+    <h3><i class="fa-solid fa-phone-volume"></i> Kontak Darurat (24 Jam)</h3>
+    <div class="contact-grid">
+      <a href="tel:112" class="contact-btn bg-red"><i class="fa-solid fa-headset"></i> BPBD (112)</a>
+      <a href="tel:110" class="contact-btn bg-blue"><i class="fa-solid fa-shield-halved"></i> Polisi (110)</a>
+      <a href="tel:118" class="contact-btn bg-green"><i class="fa-solid fa-truck-medical"></i> Ambulans (118)</a>
+      <a href="tel:115" class="contact-btn bg-orange"><i class="fa-solid fa-life-ring"></i> SAR (115)</a>
+    </div>
+    <div class="copyright">&copy; 2025 Project EWS Longsor Sukabumi</div>
+  </footer>
+
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
