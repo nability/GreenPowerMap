@@ -38,5 +38,126 @@
     "kapasitas": "100 Orang",
     "lat": -7.180,
     "lng": 106.800
+  },
+  {
+    "kecamatan": "Sagaranten",
+    "nama_tempat": "Lapangan Sagaranten",
+    "tipe": "Lapangan Terbuka",
+    "kapasitas": "1500 Orang",
+    "lat": -7.050,
+    "lng": 106.650
+  },
+  {
+    "kecamatan": "Cikembar",
+    "nama_tempat": "Gereja HKBP Cikembar",
+    "tipe": "Tempat Ibadah",
+    "kapasitas": "400 Orang",
+    "lat": -6.950,
+    "lng": 106.700
+  },
+  {
+    "kecamatan": "Nagrak",
+    "nama_tempat": "Lapangan Nagrak",
+    "tipe": "Lapangan Terbuka",
+    "kapasitas": "2500 Orang",
+    "lat": -6.930,
+    "lng": 106.720
+  },
+  {
+    "kecamatan": "Cidahu",
+    "nama_tempat": "Masjid Al-Ikhlas Cidahu",
+    "tipe": "Tempat Ibadah",
+    "kapasitas": "600 Orang",
+    "lat": -6.920,
+    "lng": 106.740
+  },
+  {
+    "kecamatan": "Sukabumi Selatan",
+    "nama_tempat": "Lapangan Merdeka Sukabumi",
+    "tipe": "Lapangan Terbuka",
+    "kapasitas": "5000 Orang",
+    "lat": -6.9231,
+    "lng": 106.9296
+  },
+  {
+    "kecamatan": "Warudoyong",
+    "nama_tempat": "GOR Surya Kencana",
+    "tipe": "Gedung Olahraga",
+    "kapasitas": "2000 Orang",
+    "lat": -6.9182,
+    "lng": 106.9264
+  },
+  {
+    "kecamatan": "Cikole",
+    "nama_tempat": "Lapangan Merdeka Kota Sukabumi",
+    "tipe": "Lapangan Terbuka",
+    "kapasitas": "3000 Orang",
+    "lat": -6.9175,
+    "lng": 106.9279
+  },
+  {
+    "kecamatan": "Citamiang",
+    "nama_tempat": "Gedung Juang 45 Sukabumi",
+    "tipe": "Gedung Serbaguna",
+    "kapasitas": "1500 Orang",
+    "lat": -6.9236,
+    "lng": 106.9154
+  },
+  {
+    "kecamatan": "Gunungpuyuh",
+    "nama_tempat": "Lapangan Pusdik Armed",
+    "tipe": "Lapangan Terbuka",
+    "kapasitas": "2500 Orang",
+    "lat": -6.9058,
+    "lng": 106.9381
+  },
+  {
+    "kecamatan": "Baros",
+    "nama_tempat": "Lapangan Baros",
+    "tipe": "Lapangan Terbuka",
+    "kapasitas": "2500 Orang",
+    "lat": -6.9346,
+    "lng": 106.8997
+  },
+  {
+    "kecamatan": "Lembursitu",
+    "nama_tempat": "Lapangan Lembursitu",
+    "tipe": "Lapangan Terbuka",
+    "kapasitas": "2000 Orang",
+    "lat": -6.9554,
+    "lng": 106.9308
+  },
+  {
+    "kecamatan": "Cisaat",
+    "nama_tempat": "GOR Cisaat",
+    "tipe": "Gedung Olahraga",
+    "kapasitas": "3000 Orang",
+    "lat": -6.9103,
+    "lng": 106.9651
+  },
+  {
+    "kecamatan": "Kadudampit",
+    "nama_tempat": "Lapangan Kadudampit",
+    "tipe": "Lapangan Terbuka",
+    "kapasitas": "1500 Orang",
+    "lat": -6.8886,
+    "lng": 106.9054
+  },
+  {
+    "kecamatan": "Cibadak",
+    "nama_tempat": "Alun-Alun Cibadak",
+    "tipe": "Ruang Terbuka",
+    "kapasitas": "4000 Orang",
+    "lat": -6.8725,
+    "lng": 106.8037
+  },
+  {
+    "kecamatan": "Parungkuda",
+    "nama_tempat": "Lapangan Parungkuda",
+    "tipe": "Lapangan Terbuka",
+    "kapasitas": "3000 Orang",
+    "lat": -6.8579,
+    "lng": 106.7648
   }
+
 ]
